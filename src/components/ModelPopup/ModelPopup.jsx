@@ -1,44 +1,74 @@
 import React, { useState } from "react";
 import "./ModelPopup.css";
-import { useFormik } from 'formik'
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import { axiosPost } from "../../axiosServices";
-// import ImageUpload from "./ImageUpload";
+
+const validationSchema = Yup.object().shape({
+    firstname: Yup.string()
+        .min(3, "First Name must be at least 3 characters")
+        .max(20, "First Name can be at most 20 characters")
+        .matches(/^[A-Za-z ]*$/, "Only characters are allowed")
+        .required("First Name is required"),
+    lastname: Yup.string()
+        .min(3, "Last Name must be at least 3 characters")
+        .max(20, "Last Name can be at most 20 characters")
+        .matches(/^[A-Za-z ]*$/, "Only characters are allowed")
+        .required("Last Name is required"),
+    activity: Yup.string().required("Activity is required"),
+    description: Yup.string()
+        .min(5, "Description must be at least 5 characters")
+        .max(250, "Description can be at most 250 characters")
+        .required("Description is required"),
+    dateofjoining: Yup.date()
+        .min(new Date(), "Date must be today or later")
+        .required("Date of Joining is required"),
+    phone: Yup.string()
+        .matches(/^[0-9]*$/, "Phone Number must contain only digits")
+        .required("Phone Number is required"),
+    image: Yup.string()
+        .url("Please enter a valid URL")
+        .required("Image URL is required"),
+    otherActivity: Yup.string()
+        .min(5, "Other Activity must be at least 5 characters")
+        .max(20, "Other Activity can be at most 20 characters"),
+        email: Yup.string()
+    .email("Please enter a valid email")
+    .required("Email is required"),
+});
 
 const ModelPopup = ({ setShowModal }) => {
-    const [loading, setLoading] = useState(false)
-    //const [imageURL, setImageURL] = useState('')
-    //console.log(empById)
+    const [loading, setLoading] = useState(false);
 
     const createRecord = async (values) => {
-        setLoading(true)
+        setLoading(true);
         try {
-            const res = await axiosPost('/client', values)
-            console.log(res)
-            setLoading(false)
-            setShowModal(false)
+            const res = await axiosPost("/client", values);
+            console.log(res);
+            setLoading(false);
+            setShowModal(false);
+        } catch (err) {
+            console.log(err);
         }
-        catch (err) {
-            console.log(err)
-        }
-    }
+    };
 
     const formik = useFormik({
         initialValues: {
-            firstname: '',
-            lastname: '',
-            email: '',
-            phone: '',
-            activity: '',
-            durations: '',
-            description: '',
-            dateofjoining: '',
-            image: ''
+            firstname: "",
+            lastname: "",
+            email: "",
+            phone: "",
+            activity: "",
+            durations: "",
+            description: "",
+            dateofjoining: "",
+            image: "",
         },
-        onSubmit: values => {
-            createRecord(values)
-
+        validationSchema,
+        onSubmit: (values) => {
+            createRecord(values);
         },
-    })
+    });
 
     const activityOptions = [
         "Swimming",
@@ -57,7 +87,9 @@ const ModelPopup = ({ setShowModal }) => {
         <div className="modalContainer">
             <form action="" onSubmit={formik.handleSubmit}>
                 <div className="modalBox">
-                <button type="close" className="close" onClick={handleClose} > x </button>
+                    <button type="close" className="close" onClick={handleClose}>
+                        x
+                    </button>
                     <div className="modalHeader">
                         <h2>New Record Details</h2>
                     </div>
@@ -71,8 +103,12 @@ const ModelPopup = ({ setShowModal }) => {
                                     name="firstname"
                                     required
                                     onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
                                     value={formik.values.firstname}
                                 />
+                                {formik.touched.firstname && formik.errors.firstname && (
+                                    <div className="error">{formik.errors.firstname}</div>
+                                )}
                             </div>
                             <div className="input-box">
                                 <label htmlFor="lastname">Last Name</label>
@@ -82,8 +118,12 @@ const ModelPopup = ({ setShowModal }) => {
                                     name="lastname"
                                     required
                                     onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
                                     value={formik.values.lastname}
                                 />
+                                {formik.touched.lastname && formik.errors.lastname && (
+                                    <div className="error">{formik.errors.lastname}</div>
+                                )}
                             </div>
                         </div>
                         <div className="input-box">
@@ -94,8 +134,12 @@ const ModelPopup = ({ setShowModal }) => {
                                 name="image"
                                 required
                                 onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
                                 value={formik.values.image}
                             />
+                            {formik.touched.image && formik.errors.image && (
+                                <div className="error">{formik.errors.image}</div>
+                            )}
                         </div>
                         <div className="input-box">
                             <label htmlFor="email">Email</label>
@@ -105,8 +149,12 @@ const ModelPopup = ({ setShowModal }) => {
                                 name="email"
                                 required
                                 onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
                                 value={formik.values.email}
                             />
+                            {formik.touched.email && formik.errors.email && (
+                                <div className="error">{formik.errors.email}</div>
+                            )}
                         </div>
                         <div className="input-container">
                             <div className="input-box">
@@ -117,8 +165,12 @@ const ModelPopup = ({ setShowModal }) => {
                                     name="phone"
                                     required
                                     onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
                                     value={formik.values.phone}
                                 />
+                                {formik.touched.phone && formik.errors.phone && (
+                                    <div className="error">{formik.errors.phone}</div>
+                                )}
                             </div>
                             <div className="input-box">
                                 <label htmlFor="activity">Activity</label>
@@ -127,6 +179,7 @@ const ModelPopup = ({ setShowModal }) => {
                                     name="activity"
                                     required
                                     onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
                                     value={formik.values.activity}
                                 >
                                     <option value="">Select an activity</option>
@@ -137,6 +190,9 @@ const ModelPopup = ({ setShowModal }) => {
                                     ))}
                                     <option value="Other">Other (Add your own)</option>
                                 </select>
+                                {formik.touched.activity && formik.errors.activity && (
+                                    <div className="error">{formik.errors.activity}</div>
+                                )}
                             </div>
                         </div>
                         {formik.values.activity === "Other" && (
@@ -147,6 +203,7 @@ const ModelPopup = ({ setShowModal }) => {
                                     id="otherActivity"
                                     name="otherActivity"
                                     onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
                                     value={formik.values.otherActivity}
                                 />
                             </div>
@@ -159,8 +216,12 @@ const ModelPopup = ({ setShowModal }) => {
                                 name="description"
                                 required
                                 onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
                                 value={formik.values.description}
                             />
+                            {formik.touched.description && formik.errors.description && (
+                                <div className="error">{formik.errors.description}</div>
+                            )}
                         </div>
                         <div className="input-box">
                             <label htmlFor="durations">Durations</label>
@@ -170,8 +231,12 @@ const ModelPopup = ({ setShowModal }) => {
                                 name="durations"
                                 required
                                 onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
                                 value={formik.values.durations}
                             />
+                            {formik.touched.durations && formik.errors.durations && (
+                                <div className="error">{formik.errors.durations}</div>
+                            )}
                         </div>
                         <div className="input-box">
                             <label htmlFor="dateofjoining">Date of Joining</label>
@@ -181,12 +246,18 @@ const ModelPopup = ({ setShowModal }) => {
                                 name="dateofjoining"
                                 required
                                 onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
                                 value={formik.values.dateofjoining}
                             />
+                            {formik.touched.dateofjoining && formik.errors.dateofjoining && (
+                                <div className="error">{formik.errors.dateofjoining}</div>
+                            )}
                         </div>
                     </div>
                     <div className="modalFooter">
-                        <button className="add-btn" type="submit">{loading ? 'Saving...' : 'Save Details'}</button>
+                        <button className="add-btn" type="submit">
+                            {loading ? "Saving..." : "Save Details"}
+                        </button>
                     </div>
                 </div>
             </form>
